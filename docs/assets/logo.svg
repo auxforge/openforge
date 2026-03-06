@@ -1,28 +1,57 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ff8c42" />
-      <stop offset="100%" stop-color="#f83600" />
+    <!-- Dark Mode Base -->
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#2a1205" />
+      <stop offset="100%" stop-color="#0a0a0a" />
+    </radialGradient>
+    
+    <!-- Primary Flame/Forge Gradient -->
+    <linearGradient id="forgeGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff4500" />
+      <stop offset="50%" stop-color="#ff8c00" />
+      <stop offset="100%" stop-color="#ffdd00" />
     </linearGradient>
-    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="12" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+
+    <!-- Chrome/Steel Gradient for structural elements -->
+    <linearGradient id="steelGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#888888" />
+    </linearGradient>
+
+    <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="16" result="blur1" />
+      <feGaussianBlur in="SourceGraphic" stdDeviation="32" result="blur2" />
+      <feMerge>
+        <feMergeNode in="blur2" />
+        <feMergeNode in="blur1" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
     </filter>
   </defs>
+
   <!-- Background -->
-  <rect width="512" height="512" rx="112" fill="#0a0a0a" />
-  <rect width="512" height="512" rx="112" fill="none" stroke="#222" stroke-width="4" />
-  
-  <!-- Subtle Ring -->
-  <circle cx="256" cy="256" r="170" fill="none" stroke="#1a1a1a" stroke-width="8" stroke-dasharray="40 20" />
-  
-  <!-- Core Anvil / Spark Shape -->
-  <g transform="translate(0, -10)">
-    <path d="M 170 360 L 342 360 C 362 360 374 340 362 324 L 322 268 C 348 254 366 226 366 192 C 366 144 326 104 278 104 C 262 104 246 110 234 118 C 222 102 204 92 184 92 C 140 92 104 128 104 172 C 104 206 122 236 150 252 L 126 324 C 114 340 126 360 146 360 Z" fill="url(#grad)" filter="url(#glow)" />
+  <rect width="512" height="512" rx="120" fill="url(#bgGlow)" />
+  <rect width="512" height="512" rx="120" fill="none" stroke="rgba(255,140,0,0.2)" stroke-width="2" />
+
+  <!-- Abstract "O" and "F" / Forge Structure -->
+  <g transform="translate(256, 256)">
     
-    <!-- Cutout spark -->
-    <path d="M 256 310 C 210 260 216 190 256 150 C 296 190 302 260 256 310 Z" fill="#0a0a0a" />
-    <!-- Inner bright dot -->
-    <circle cx="256" cy="220" r="14" fill="#ffb480" />
+    <!-- Outer Ring (The "O") -->
+    <circle cx="0" cy="0" r="140" fill="none" stroke="url(#steelGrad)" stroke-width="24" stroke-dasharray="210 500" stroke-linecap="round" transform="rotate(135)" />
+    <circle cx="0" cy="0" r="140" fill="none" stroke="url(#forgeGrad)" stroke-width="24" stroke-dasharray="210 500" stroke-linecap="round" transform="rotate(-45)" filter="url(#neonGlow)" />
+    
+    <!-- Inner Spark / Nodes (AI connection points) -->
+    <circle cx="-50" cy="-50" r="16" fill="url(#forgeGrad)" filter="url(#neonGlow)" />
+    <circle cx="50" cy="50" r="16" fill="url(#forgeGrad)" filter="url(#neonGlow)" />
+    <circle cx="-50" cy="50" r="16" fill="#fff" />
+    
+    <!-- Connecting neural lines (The "Forge" lattice) -->
+    <path d="M -50 -50 L 50 50 M -50 50 L 50 -50" stroke="url(#steelGrad)" stroke-width="8" stroke-linecap="round" />
+    <path d="M -50 -50 L 0 -100 M 50 50 L 0 100" stroke="url(#forgeGrad)" stroke-width="8" stroke-linecap="round" filter="url(#neonGlow)" opacity="0.8" />
+    
+    <!-- Central Core -->
+    <path d="M 0 -24 L 24 0 L 0 24 L -24 0 Z" fill="#ffffff" filter="url(#neonGlow)" />
+    
   </g>
 </svg>
