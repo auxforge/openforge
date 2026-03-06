@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenForge — Open-source AI Agent Builder</title>
+  <meta name="description" content="Create, share, and run AI agents with MCP, tool-calling, and any AI provider. Open source.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --border: #1a1a1a;
+      --text: #ededed;
+      --text-secondary: #888888;
+      --accent: #ff6b2b;
+      --accent-dim: rgba(255, 107, 43, 0.1);
+      --code-bg: #0d0d0d;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      padding: 16px 0;
+      background: rgba(10, 10, 10, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+    }
+
+    nav .inner {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    nav .logo {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.3px;
+    }
+
+    nav .logo span { color: var(--accent); }
+
+    nav .links {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    nav .links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    nav .links a:hover { color: var(--text); }
+
+    nav .gh-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text) !important;
+      font-size: 13px;
+      transition: border-color 0.2s;
+    }
+
+    nav .gh-btn:hover { border-color: #333; }
+
+    /* ── Main ── */
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      padding-top: 140px;
+      padding-bottom: 80px;
+    }
+
+    .hero .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 107, 43, 0.15);
+    }
+
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -1.2px;
+      margin-bottom: 16px;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 520px;
+      line-height: 1.7;
+    }
+
+    /* ── Install ── */
+    .install {
+      margin-top: 40px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .install-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .install-box:hover { border-color: #333; }
+
+    .install-box .dollar { color: var(--accent); user-select: none; }
+
+    .install-box .copy-icon {
+      color: var(--text-secondary);
+      transition: color 0.2s;
+    }
+
+    .install-box:hover .copy-icon { color: var(--text); }
+
+    .copied-toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--accent);
+      color: white;
+      padding: 8px 20px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+
+    .copied-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Sections ── */
+    section {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    section h2 {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    section .subtitle {
+      color: var(--text-secondary);
+      font-size: 15px;
+      margin-bottom: 32px;
+    }
+
+    /* ── Code blocks ── */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
+
+    pre .comment { color: #555; }
+    pre .keyword { color: var(--accent); }
+    pre .string { color: #7ec699; }
+    pre .func { color: #e2b86b; }
+
+    /* ── Features grid ── */
+    .features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .feature {
+      padding: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .feature .icon {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .feature h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      letter-spacing: -0.2px;
+    }
+
+    .feature p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ── Steps ── */
+    .steps {
+      counter-reset: step;
+    }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 50%;
+      margin-top: 2px;
+    }
+
+    .step h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .step p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .step code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .features { grid-template-columns: 1fr; }
+      nav .links a:not(.gh-btn) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <div class="inner">
+      <a href="/" class="logo">🔥 open<span>forge</span></a>
+      <div class="links">
+        <a href="#get-started">Get Started</a>
+        <a href="#features">Features</a>
+        <a href="https://github.com/auxforge/openforge" target="_blank" class="gh-btn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          GitHub
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- Hero -->
+    <div class="hero">
+      <span class="badge">Open Source</span>
+      <h1>Build AI agents<br>that actually do things.</h1>
+      <p>Create agents with tools, connect them to MCP servers, and run them with any AI provider. No lock-in. Just code.</p>
+
+      <div class="install">
+        <div class="install-box" onclick="copyCmd(this, 'npm install openforge')">
+          <span class="dollar">$</span>
+          <span>npm install openforge</span>
+          <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <section id="features">
+      <h2>What you get</h2>
+      <p class="subtitle">Everything you need to build, share, and run AI agents.</p>
+
+      <div class="features">
+        <div class="feature">
+          <div class="icon">🔌</div>
+          <h3>MCP Support</h3>
+          <p>Connect to any MCP server — stdio, SSE, WebSocket. Use thousands of existing tools.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">🤖</div>
+          <h3>Any AI Provider</h3>
+          <p>OpenAI, Anthropic, Gemini, Groq, Ollama — bring whatever you want. No lock-in.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">🔧</div>
+          <h3>Built-in Tools</h3>
+          <p>HTTP fetch, JSON parse, text transform, date/time. Ready to use out of the box.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">📦</div>
+          <h3>Portable Agents</h3>
+          <p>Each agent is a JSON manifest. Share it, install it, run it anywhere.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">⚡</div>
+          <h3>Event Streaming</h3>
+          <p>Track execution in real-time. See every tool call and response as it happens.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">🎨</div>
+          <h3>Custom Tools</h3>
+          <p>Write JS handlers for custom tools. Sandboxed via VM. Full control.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Get Started -->
+    <section id="get-started">
+      <h2>Get started in 2 minutes</h2>
+      <p class="subtitle">From install to running your first agent.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div>
+            <h3>Install</h3>
+            <p><code>npm install -g openforge</code></p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h3>Create an agent</h3>
+            <p><code>openforge create my-agent "A helpful assistant"</code></p>
+            <p style="margin-top: 6px">This creates a <code>.agent.json</code> manifest in <code>~/.openforge/agents/</code></p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h3>Run it</h3>
+            <p><code>OPENAI_API_KEY=sk-xxx openforge run my-agent "hello"</code></p>
+            <p style="margin-top: 6px">Works with any provider — swap OpenAI for Anthropic, Gemini, or local Ollama.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Code example -->
+    <section>
+      <h2>Or use it in code</h2>
+      <p class="subtitle">Full programmatic control with streaming support.</p>
+
+      <pre><span class="keyword">const</span> { AgentBuilder } = <span class="func">require</span>(<span class="string">'openforge'</span>);
+
+<span class="keyword">const</span> builder = <span class="keyword">new</span> AgentBuilder({
+  <span class="func">aiProvider</span>: <span class="keyword">async</span> (messages, model, tools) => {
+    <span class="comment">// Use any AI provider you want</span>
+    <span class="keyword">const</span> { OpenAI } = <span class="func">require</span>(<span class="string">'openai'</span>);
+    <span class="keyword">return</span> <span class="keyword">await</span> <span class="keyword">new</span> OpenAI()
+      .chat.completions.<span class="func">create</span>({ model, messages, tools });
+  },
+});
+
+<span class="keyword">await</span> builder.<span class="func">initialize</span>();
+
+<span class="comment">// Connect an MCP server</span>
+<span class="keyword">await</span> builder.<span class="func">addMcpServer</span>(<span class="string">'calendar'</span>, {
+  transport: <span class="string">'stdio'</span>,
+  command: <span class="string">'npx'</span>,
+  args: [<span class="string">'-y'</span>, <span class="string">'@anthropic/mcp-google-calendar'</span>],
+});
+
+<span class="comment">// Run with real-time streaming</span>
+<span class="keyword">const</span> { runtime, resultPromise } = <span class="keyword">await</span> builder.<span class="func">runAgentStreaming</span>(
+  <span class="string">'my-agent'</span>, <span class="string">'Check my calendar for tomorrow'</span>
+);
+
+runtime.<span class="func">on</span>(<span class="string">'tool_call'</span>, (d) => console.<span class="func">log</span>(<span class="string">`🔧 ${d.tool}`</span>));
+<span class="keyword">const</span> result = <span class="keyword">await</span> resultPromise;</pre>
+    </section>
+
+    <!-- CTA -->
+    <section style="text-align: center; padding: 80px 0;">
+      <h2 style="margin-bottom: 12px;">Build whatever you want.</h2>
+      <p class="subtitle" style="margin-bottom: 32px;">It's open source. MIT licensed. Go make something great.</p>
+      <a href="https://github.com/auxforge/openforge" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; background: var(--accent); color: white; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; transition: opacity 0.2s;">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        View on GitHub
+      </a>
+    </section>
+
+  </main>
+
+  <footer>
+    <div style="max-width: 720px; margin: 0 auto; padding: 0 24px;">
+      Made by <a href="https://github.com/auxforge" target="_blank">AuxForge</a> · MIT License · <a href="https://github.com/auxforge/openforge" target="_blank">GitHub</a>
+    </div>
+  </footer>
+
+  <div class="copied-toast" id="toast">Copied!</div>
+
+  <script>
+    function copyCmd(el, text) {
+      navigator.clipboard.writeText(text);
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1500);
+    }
+  </script>
+
+</body>
+</html>
